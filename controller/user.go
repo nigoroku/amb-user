@@ -86,7 +86,7 @@ func EditUser(c *gin.Context) {
 	var buf *bytes.Buffer
 	if file != nil {
 		defer file.Close()
-		buf := bytes.NewBuffer(nil)
+		buf = bytes.NewBuffer(nil)
 		if _, err3 := io.Copy(buf, file); err3 != nil {
 			fmt.Println(err3)
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -103,6 +103,8 @@ func EditUser(c *gin.Context) {
 	user.Email = email
 	user.Introduction = introduction
 	if buf != nil {
+		user.ContentType = http.DetectContentType(buf.Bytes())
+		fmt.Println(http.DetectContentType(buf.Bytes()))
 		user.AccountImg = buf.Bytes()
 	}
 

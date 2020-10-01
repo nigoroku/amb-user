@@ -36,6 +36,7 @@ type User struct {
 	ModifiedBy   null.Int  `boil:"modified_by" json:"modified_by,omitempty" toml:"modified_by" yaml:"modified_by,omitempty"`
 	ModifiedAt   null.Time `boil:"modified_at" json:"modified_at,omitempty" toml:"modified_at" yaml:"modified_at,omitempty"`
 	AccountImg   []byte    `boil:"account_img" json:"account_img,omitempty" toml:"account_img" yaml:"account_img,omitempty"`
+	ContentType  string    `boil:"content_type" json:"content_type,omitempty" toml:"content_type" yaml:"content_type,omitempty"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -54,6 +55,7 @@ var UserColumns = struct {
 	ModifiedBy   string
 	ModifiedAt   string
 	AccountImg   string
+	ContentType  string
 }{
 	UserID:       "user_id",
 	AccountName:  "account_name",
@@ -67,6 +69,7 @@ var UserColumns = struct {
 	ModifiedBy:   "modified_by",
 	ModifiedAt:   "modified_at",
 	AccountImg:   "account_img",
+	ContentType:  "content_type",
 }
 
 // Generated where
@@ -123,6 +126,7 @@ var UserWhere = struct {
 	ModifiedBy   whereHelpernull_Int
 	ModifiedAt   whereHelpernull_Time
 	AccountImg   whereHelpernull_Bytes
+	ContentType  whereHelperstring
 }{
 	UserID:       whereHelperint{field: "`users`.`user_id`"},
 	AccountName:  whereHelperstring{field: "`users`.`account_name`"},
@@ -136,6 +140,7 @@ var UserWhere = struct {
 	ModifiedBy:   whereHelpernull_Int{field: "`users`.`modified_by`"},
 	ModifiedAt:   whereHelpernull_Time{field: "`users`.`modified_at`"},
 	AccountImg:   whereHelpernull_Bytes{field: "`users`.`account_img`"},
+	ContentType:  whereHelperstring{field: "`users`.`content_type`"},
 }
 
 // UserRels is where relationship names are stored.

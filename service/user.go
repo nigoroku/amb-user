@@ -70,6 +70,7 @@ func (u *UserService) UpdateUser(user models.User) error {
 		models.UserColumns.Email:        user.Email,
 		models.UserColumns.Introduction: user.Introduction,
 		models.UserColumns.AccountImg:   user.AccountImg,
+		models.UserColumns.ContentType:  user.ContentType,
 		models.UserColumns.ModifiedAt:   time.Now(),
 	}
 

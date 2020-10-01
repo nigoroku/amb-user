@@ -51,16 +51,17 @@ func AuthJwt() *jwt.GinJWTMiddleware {
 			password := loginVals.Password
 
 			userService := service.UserService{}
-			registeredUser, err := userService.FindRegisteredUser(email, password)
-			if err == nil {
-				return &models.User{
-					Email:       registeredUser.Email,
-					UserID:      registeredUser.UserID,
-					AccountName: registeredUser.AccountName,
-				}, nil
+			registeredUser, err2 := userService.FindRegisteredUser(email, password)
+			if err2 != nil {
+				fmt.Println("err:", err2)
+				return nil, jwt.ErrFailedAuthentication
 			}
 
-			return nil, jwt.ErrFailedAuthentication
+			return &models.User{
+				Email:       registeredUser.Email,
+				UserID:      registeredUser.UserID,
+				AccountName: registeredUser.AccountName,
+			}, nil
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			// TODO:DBから取得

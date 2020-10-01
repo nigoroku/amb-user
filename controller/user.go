@@ -103,8 +103,7 @@ func EditUser(c *gin.Context) {
 	user.Email = email
 	user.Introduction = introduction
 	if buf != nil {
-		user.ContentType = http.DetectContentType(buf.Bytes())
-		fmt.Println(http.DetectContentType(buf.Bytes()))
+		user.ContentType.String = http.DetectContentType(buf.Bytes())
 		user.AccountImg = buf.Bytes()
 	}
 

@@ -24,19 +24,19 @@ import (
 
 // User is an object representing the database table.
 type User struct {
-	UserID       int       `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
-	AccountName  string    `boil:"account_name" json:"account_name" toml:"account_name" yaml:"account_name"`
-	Introduction string    `boil:"introduction" json:"introduction" toml:"introduction" yaml:"introduction"`
-	Email        string    `boil:"email" json:"email" toml:"email" yaml:"email"`
-	Password     string    `boil:"password" json:"password" toml:"password" yaml:"password"`
-	Role         int8      `boil:"role" json:"role" toml:"role" yaml:"role"`
-	LastLoginAt  null.Time `boil:"last_login_at" json:"last_login_at,omitempty" toml:"last_login_at" yaml:"last_login_at,omitempty"`
-	CreatedBy    int       `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
-	CreatedAt    time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	ModifiedBy   null.Int  `boil:"modified_by" json:"modified_by,omitempty" toml:"modified_by" yaml:"modified_by,omitempty"`
-	ModifiedAt   null.Time `boil:"modified_at" json:"modified_at,omitempty" toml:"modified_at" yaml:"modified_at,omitempty"`
-	AccountImg   []byte    `boil:"account_img" json:"account_img,omitempty" toml:"account_img" yaml:"account_img,omitempty"`
-	ContentType  string    `boil:"content_type" json:"content_type,omitempty" toml:"content_type" yaml:"content_type,omitempty"`
+	UserID       int         `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
+	AccountName  string      `boil:"account_name" json:"account_name" toml:"account_name" yaml:"account_name"`
+	Introduction string      `boil:"introduction" json:"introduction" toml:"introduction" yaml:"introduction"`
+	Email        string      `boil:"email" json:"email" toml:"email" yaml:"email"`
+	Password     string      `boil:"password" json:"password" toml:"password" yaml:"password"`
+	Role         int8        `boil:"role" json:"role" toml:"role" yaml:"role"`
+	LastLoginAt  null.Time   `boil:"last_login_at" json:"last_login_at,omitempty" toml:"last_login_at" yaml:"last_login_at,omitempty"`
+	CreatedBy    int         `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
+	CreatedAt    time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	ModifiedBy   null.Int    `boil:"modified_by" json:"modified_by,omitempty" toml:"modified_by" yaml:"modified_by,omitempty"`
+	ModifiedAt   null.Time   `boil:"modified_at" json:"modified_at,omitempty" toml:"modified_at" yaml:"modified_at,omitempty"`
+	AccountImg   []byte      `boil:"account_img" json:"account_img,omitempty" toml:"account_img" yaml:"account_img,omitempty"`
+	ContentType  null.String `boil:"content_type" json:"content_type,omitempty" toml:"content_type" yaml:"content_type,omitempty"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`

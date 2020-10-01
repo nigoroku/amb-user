@@ -70,13 +70,12 @@ func CreateUser(c *gin.Context) {
 
 func EditUser(c *gin.Context) {
 
-	file, _, err3 := c.Request.FormFile("image")
 	accountName := c.PostForm("account_name")
 	email := c.PostForm("email")
 	introduction := c.PostForm("introduction")
 	userID, _ := strconv.Atoi(c.PostForm("user_id"))
-	defer file.Close()
-	if err3 != nil {
+	file, _, err3 := c.Request.FormFile("image")
+	if file != nil && err3 != nil {
 		fmt.Println(err3)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "ng",
@@ -84,14 +83,18 @@ func EditUser(c *gin.Context) {
 		})
 		return
 	}
-	buf := bytes.NewBuffer(nil)
-	if _, err3 := io.Copy(buf, file); err3 != nil {
-		fmt.Println(err3)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "ng",
-			"err":     err3,
-		})
-		return
+	var buf *bytes.Buffer
+	if file != nil {
+		defer file.Close()
+		buf := bytes.NewBuffer(nil)
+		if _, err3 := io.Copy(buf, file); err3 != nil {
+			fmt.Println(err3)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "ng",
+				"err":     err3,
+			})
+			return
+		}
 	}
 
 	var user models.User
@@ -99,7 +102,9 @@ func EditUser(c *gin.Context) {
 	user.AccountName = accountName
 	user.Email = email
 	user.Introduction = introduction
-	user.AccountImg = buf.Bytes()
+	if buf != nil {
+		user.AccountImg = buf.Bytes()
+	}
 
 	userService := service.NewUserService()
 

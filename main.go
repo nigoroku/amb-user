@@ -43,7 +43,7 @@ func main() {
 	// ルーティング
 	UserRoute := r.Group("/api/v1")
 	{
-		v1 UserRoute.Group("/user")
+		v1 := UserRoute.Group("/user")
 		{
 			v1.GET("/account", controller.FindAccount)
 			v1.POST("/create", controller.CreateUser)

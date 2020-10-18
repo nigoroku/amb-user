@@ -51,7 +51,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	u2, err := userService.AddUser(user)
+	u2, err := userService.AddUser(&user)
 
 	if err != nil {
 		fmt.Println(err)
@@ -134,21 +134,11 @@ func FindOrCreateUser(c *gin.Context) {
 	userService := service.NewUserService()
 	u, err := userService.FindUser(user.Email)
 
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "NG",
-			"err":     err,
-		})
-		return
-	}
-
 	if u == nil {
 		// まだ登録されていない場合
 		u2, err2 := userService.AddUser(user)
 
 		if err2 != nil {
-			fmt.Println(err2)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "NG",
 				"err":     err,
@@ -161,6 +151,14 @@ func FindOrCreateUser(c *gin.Context) {
 			"user":    u2,
 		})
 
+		return
+	}
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "NG",
+			"err":     err,
+		})
 		return
 	}
 

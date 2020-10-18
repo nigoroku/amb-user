@@ -41,16 +41,16 @@ func FindAllUser() (models.UserSlice, error) {
 	return models.Users().All(context.Background(), boil.GetContextDB())
 }
 
-func (us *UserService) AddUser(user models.User) (models.User, error) {
+func (us *UserService) AddUser(user *models.User) (*models.User, error) {
 	now := time.Now()
 
 	// User登録
-	var u models.User
+	u := &models.User{}
 	u.Email = user.Email
 	// 暗号化
 	hashed, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
-		return models.User{}, err
+		return &models.User{}, err
 	}
 	emailSlice := strings.Split(user.Email, "@")
 	u.AccountName = emailSlice[0]
@@ -65,13 +65,25 @@ func (us *UserService) AddUser(user models.User) (models.User, error) {
 
 func (u *UserService) UpdateUser(user models.User) error {
 
-	updCols := map[string]interface{}{
-		models.UserColumns.AccountName:  user.AccountName,
-		models.UserColumns.Email:        user.Email,
-		models.UserColumns.Introduction: user.Introduction,
-		models.UserColumns.AccountImg:   user.AccountImg,
-		models.UserColumns.ContentType:  user.ContentType.String,
-		models.UserColumns.ModifiedAt:   time.Now(),
+	var updCols map[string]interface{}
+
+	if user.AccountImg != nil {
+		updCols = map[string]interface{}{
+			models.UserColumns.AccountName:  user.AccountName,
+			models.UserColumns.Email:        user.Email,
+			models.UserColumns.Introduction: user.Introduction,
+			models.UserColumns.AccountImg:   user.AccountImg,
+			models.UserColumns.ContentType:  user.ContentType.String,
+			models.UserColumns.ModifiedAt:   time.Now(),
+		}
+	} else {
+		updCols = map[string]interface{}{
+			models.UserColumns.AccountName:  user.AccountName,
+			models.UserColumns.Email:        user.Email,
+			models.UserColumns.Introduction: user.Introduction,
+			models.UserColumns.ContentType:  user.ContentType.String,
+			models.UserColumns.ModifiedAt:   time.Now(),
+		}
 	}
 
 	query := qm.WhereIn(models.UserColumns.Email+" = ?", user.Email)

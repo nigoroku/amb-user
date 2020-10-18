@@ -9,6 +9,7 @@ import (
 	// "github.com/kzpolicy/user/controller"
 	// "github.com/kzpolicy/user/middleware"
 	"local.packages/controller"
+	"local.packages/db"
 	"local.packages/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -39,6 +40,9 @@ func main() {
 		log.Printf("NoRoute claims: %#v\n", claims)
 		c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
 	})
+
+	// DB接続
+	db.Init()
 
 	// ルーティング
 	UserRoute := r.Group("/api/v1")

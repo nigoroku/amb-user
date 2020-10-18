@@ -39,12 +39,10 @@ func MustTx(transactor boil.ContextTransactor, err error) boil.ContextTransactor
 }
 
 func TestAddUser(t *testing.T) {
-
-	t.Parallel()
-
 	// DB接続
 	Init()
 
+	t.Parallel()
 	seed := randomize.NewSeed()
 	var err error
 	o := &models.User{}
@@ -77,9 +75,46 @@ func TestAddUser(t *testing.T) {
 	assert.Equal(t, o.Email, got2.Email)
 }
 
-// func errorf(tb testing.TB, want string, got string) {
-// 	tb.Errorf("want = %v, got = %v", want, got)
-// }
+func TestFindRegisteredUser(t *testing.T) {
+	// DB接続
+	Init()
+
+	t.Parallel()
+	seed := randomize.NewSeed()
+	var err error
+	o := &models.User{}
+	if err = randomize.Struct(seed, o, userDBTypes, true, userColumnsWithDefault...); err != nil {
+		t.Errorf("Unable to randomize User struct: %s", err)
+	}
+
+	email := "test2@test.com"
+	password := "password"
+
+	o.Email = email
+	o.Password = password
+
+	ctx := context.Background()
+	tx := MustTx(boil.BeginTx(ctx, nil))
+	defer func() { _ = tx.Rollback() }()
+	userService := &UserService{ctx, tx}
+	got, err2 := userService.AddUser(o)
+
+	if err2 != nil {
+		t.Error(err2)
+		errorfHelper(t, o.Email, got.Email)
+	}
+
+	tx.Commit()
+
+	got2, err3 := userService.FindRegisteredUser(email, password)
+
+	if err3 != nil {
+		t.Error(err3)
+		errorfHelper(t, o.Email, got2.Email)
+	}
+
+	assert.NotNil(t, got2)
+}
 
 func errorfHelper(tb testing.TB, want string, got string) {
 	tb.Helper()

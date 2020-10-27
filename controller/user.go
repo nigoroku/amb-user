@@ -128,7 +128,7 @@ func EditUser(c *gin.Context) {
 
 func FindOrCreateUser(c *gin.Context) {
 
-	var user models.User
+	user := &models.User{}
 	c.ShouldBindJSON(&user)
 
 	userService := service.NewUserService()

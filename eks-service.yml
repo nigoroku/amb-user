@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: amb-user
+spec:
+  selector:
+    back: amb-user
+  ports:
+    - port: 80
+      targetPort: 8081

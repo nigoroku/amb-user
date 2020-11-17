@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-deployment
+  labels:
+    app: amb-app
+    back: amb-user
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: amb-app
+      back: amb-user
+  template:
+    metadata:
+      labels:
+        app: amb-app
+        back: amb-user
+    spec:
+      containers:
+        - name: amb-user
+          image: 536969602909.dkr.ecr.us-east-1.amazonaws.com/amb-user:1.1.0
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - secretRef:
+                name: eks-secret

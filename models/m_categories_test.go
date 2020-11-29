@@ -519,8 +519,9 @@ func testMCategoryToManyCategoryInputAchievementTags(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queries.Assign(&b.CategoryID, a.CategoryID)
-	queries.Assign(&c.CategoryID, a.CategoryID)
+	b.CategoryID = a.CategoryID
+	c.CategoryID = a.CategoryID
+
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -535,10 +536,10 @@ func testMCategoryToManyCategoryInputAchievementTags(t *testing.T) {
 
 	bFound, cFound := false, false
 	for _, v := range check {
-		if queries.Equal(v.CategoryID, b.CategoryID) {
+		if v.CategoryID == b.CategoryID {
 			bFound = true
 		}
-		if queries.Equal(v.CategoryID, c.CategoryID) {
+		if v.CategoryID == c.CategoryID {
 			cFound = true
 		}
 	}
@@ -596,8 +597,9 @@ func testMCategoryToManyCategoryOutputAchievementTags(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queries.Assign(&b.CategoryID, a.CategoryID)
-	queries.Assign(&c.CategoryID, a.CategoryID)
+	b.CategoryID = a.CategoryID
+	c.CategoryID = a.CategoryID
+
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -612,10 +614,10 @@ func testMCategoryToManyCategoryOutputAchievementTags(t *testing.T) {
 
 	bFound, cFound := false, false
 	for _, v := range check {
-		if queries.Equal(v.CategoryID, b.CategoryID) {
+		if v.CategoryID == b.CategoryID {
 			bFound = true
 		}
-		if queries.Equal(v.CategoryID, c.CategoryID) {
+		if v.CategoryID == c.CategoryID {
 			cFound = true
 		}
 	}
@@ -693,10 +695,10 @@ func testMCategoryToManyAddOpCategoryInputAchievementTags(t *testing.T) {
 		first := x[0]
 		second := x[1]
 
-		if !queries.Equal(a.CategoryID, first.CategoryID) {
+		if a.CategoryID != first.CategoryID {
 			t.Error("foreign key was wrong value", a.CategoryID, first.CategoryID)
 		}
-		if !queries.Equal(a.CategoryID, second.CategoryID) {
+		if a.CategoryID != second.CategoryID {
 			t.Error("foreign key was wrong value", a.CategoryID, second.CategoryID)
 		}
 
@@ -723,182 +725,6 @@ func testMCategoryToManyAddOpCategoryInputAchievementTags(t *testing.T) {
 		}
 	}
 }
-
-func testMCategoryToManySetOpCategoryInputAchievementTags(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a MCategory
-	var b, c, d, e InputAchievementTag
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, mCategoryDBTypes, false, strmangle.SetComplement(mCategoryPrimaryKeyColumns, mCategoryColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*InputAchievementTag{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, inputAchievementTagDBTypes, false, strmangle.SetComplement(inputAchievementTagPrimaryKeyColumns, inputAchievementTagColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.SetCategoryInputAchievementTags(ctx, tx, false, &b, &c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.CategoryInputAchievementTags().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.SetCategoryInputAchievementTags(ctx, tx, true, &d, &e)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.CategoryInputAchievementTags().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.CategoryID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.CategoryID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-	if !queries.Equal(a.CategoryID, d.CategoryID) {
-		t.Error("foreign key was wrong value", a.CategoryID, d.CategoryID)
-	}
-	if !queries.Equal(a.CategoryID, e.CategoryID) {
-		t.Error("foreign key was wrong value", a.CategoryID, e.CategoryID)
-	}
-
-	if b.R.Category != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.Category != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.Category != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-	if e.R.Category != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-
-	if a.R.CategoryInputAchievementTags[0] != &d {
-		t.Error("relationship struct slice not set to correct value")
-	}
-	if a.R.CategoryInputAchievementTags[1] != &e {
-		t.Error("relationship struct slice not set to correct value")
-	}
-}
-
-func testMCategoryToManyRemoveOpCategoryInputAchievementTags(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a MCategory
-	var b, c, d, e InputAchievementTag
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, mCategoryDBTypes, false, strmangle.SetComplement(mCategoryPrimaryKeyColumns, mCategoryColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*InputAchievementTag{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, inputAchievementTagDBTypes, false, strmangle.SetComplement(inputAchievementTagPrimaryKeyColumns, inputAchievementTagColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.AddCategoryInputAchievementTags(ctx, tx, true, foreigners...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.CategoryInputAchievementTags().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 4 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.RemoveCategoryInputAchievementTags(ctx, tx, foreigners[:2]...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.CategoryInputAchievementTags().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.CategoryID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.CategoryID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-
-	if b.R.Category != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.Category != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.Category != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-	if e.R.Category != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-
-	if len(a.R.CategoryInputAchievementTags) != 2 {
-		t.Error("should have preserved two relationships")
-	}
-
-	// Removal doesn't do a stable deletion for performance so we have to flip the order
-	if a.R.CategoryInputAchievementTags[1] != &d {
-		t.Error("relationship to d should have been preserved")
-	}
-	if a.R.CategoryInputAchievementTags[0] != &e {
-		t.Error("relationship to e should have been preserved")
-	}
-}
-
 func testMCategoryToManyAddOpCategoryOutputAchievementTags(t *testing.T) {
 	var err error
 
@@ -944,10 +770,10 @@ func testMCategoryToManyAddOpCategoryOutputAchievementTags(t *testing.T) {
 		first := x[0]
 		second := x[1]
 
-		if !queries.Equal(a.CategoryID, first.CategoryID) {
+		if a.CategoryID != first.CategoryID {
 			t.Error("foreign key was wrong value", a.CategoryID, first.CategoryID)
 		}
-		if !queries.Equal(a.CategoryID, second.CategoryID) {
+		if a.CategoryID != second.CategoryID {
 			t.Error("foreign key was wrong value", a.CategoryID, second.CategoryID)
 		}
 
@@ -972,181 +798,6 @@ func testMCategoryToManyAddOpCategoryOutputAchievementTags(t *testing.T) {
 		if want := int64((i + 1) * 2); count != want {
 			t.Error("want", want, "got", count)
 		}
-	}
-}
-
-func testMCategoryToManySetOpCategoryOutputAchievementTags(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a MCategory
-	var b, c, d, e OutputAchievementTag
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, mCategoryDBTypes, false, strmangle.SetComplement(mCategoryPrimaryKeyColumns, mCategoryColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*OutputAchievementTag{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, outputAchievementTagDBTypes, false, strmangle.SetComplement(outputAchievementTagPrimaryKeyColumns, outputAchievementTagColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.SetCategoryOutputAchievementTags(ctx, tx, false, &b, &c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.CategoryOutputAchievementTags().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.SetCategoryOutputAchievementTags(ctx, tx, true, &d, &e)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.CategoryOutputAchievementTags().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.CategoryID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.CategoryID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-	if !queries.Equal(a.CategoryID, d.CategoryID) {
-		t.Error("foreign key was wrong value", a.CategoryID, d.CategoryID)
-	}
-	if !queries.Equal(a.CategoryID, e.CategoryID) {
-		t.Error("foreign key was wrong value", a.CategoryID, e.CategoryID)
-	}
-
-	if b.R.Category != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.Category != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.Category != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-	if e.R.Category != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-
-	if a.R.CategoryOutputAchievementTags[0] != &d {
-		t.Error("relationship struct slice not set to correct value")
-	}
-	if a.R.CategoryOutputAchievementTags[1] != &e {
-		t.Error("relationship struct slice not set to correct value")
-	}
-}
-
-func testMCategoryToManyRemoveOpCategoryOutputAchievementTags(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a MCategory
-	var b, c, d, e OutputAchievementTag
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, mCategoryDBTypes, false, strmangle.SetComplement(mCategoryPrimaryKeyColumns, mCategoryColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*OutputAchievementTag{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, outputAchievementTagDBTypes, false, strmangle.SetComplement(outputAchievementTagPrimaryKeyColumns, outputAchievementTagColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.AddCategoryOutputAchievementTags(ctx, tx, true, foreigners...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.CategoryOutputAchievementTags().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 4 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.RemoveCategoryOutputAchievementTags(ctx, tx, foreigners[:2]...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.CategoryOutputAchievementTags().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.CategoryID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.CategoryID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-
-	if b.R.Category != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.Category != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.Category != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-	if e.R.Category != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-
-	if len(a.R.CategoryOutputAchievementTags) != 2 {
-		t.Error("should have preserved two relationships")
-	}
-
-	// Removal doesn't do a stable deletion for performance so we have to flip the order
-	if a.R.CategoryOutputAchievementTags[1] != &d {
-		t.Error("relationship to d should have been preserved")
-	}
-	if a.R.CategoryOutputAchievementTags[0] != &e {
-		t.Error("relationship to e should have been preserved")
 	}
 }
 

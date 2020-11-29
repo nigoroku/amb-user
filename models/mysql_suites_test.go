@@ -16,6 +16,8 @@ func TestUpsert(t *testing.T) {
 
 	t.Run("OutputAchievements", testOutputAchievementsUpsert)
 
+	t.Run("ShareTokens", testShareTokensUpsert)
+
 	t.Run("TodoDetails", testTodoDetailsUpsert)
 
 	t.Run("Todos", testTodosUpsert)

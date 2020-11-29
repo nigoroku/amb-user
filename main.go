@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-contrib/cors"
@@ -17,7 +18,7 @@ import (
 	// "github.com/volatiletech/sqlboiler/boil"
 )
 
-//go:generate sqlboiler --output models/generated --pkgname models.generated --wipe mysql
+//go:generate sqlboiler --output models --pkgname models --wipe mysql
 
 var identityKey = "id"
 
@@ -29,7 +30,7 @@ func main() {
 
 	// CORS 対応
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000"}
+	config.AllowOrigins = []string{"*"}
 	r.Use(cors.New(config))
 
 	authMiddleware := middleware.AuthJwt()
@@ -55,6 +56,10 @@ func main() {
 			v1.POST("/find-or-create", controller.FindOrCreateUser)
 			v1.POST("/login", authMiddleware.LoginHandler)
 
+			v1.GET("/share", controller.CreateShareToken)
+			v1.POST("/share/regite", controller.RegisteShareToken)
+			v1.GET("/public", controller.FindPublicUser)
+
 			auth := v1.Group("/auth")
 			auth.GET("/refresh_token", authMiddleware.RefreshHandler)
 			auth.Use(authMiddleware.MiddlewareFunc())
@@ -67,6 +72,11 @@ func main() {
 		})
 	})
 
-	// TODO:環境変数に設定する
-	r.Run(":8081")
+	// 起動ポートを環境変数から取得
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		port = "8081"
+	}
+
+	r.Run(":" + port)
 }

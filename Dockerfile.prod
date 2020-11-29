@@ -1,12 +1,11 @@
-FROM golang:1.14.10 as builder
+FROM golang:1.14.10-alpine3.12 as builder
 
 WORKDIR /go/src/github.com/nigoroku/amb-user
 ADD . /go/src/github.com/nigoroku/amb-user
 
 ENV GO111MODULE=on
 
-RUN groupadd -g 10001 ambitious \
-    && useradd -u 10001 -g ambitious ambitious
+RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
 
 COPY go.mod go.sum ./
 
@@ -14,17 +13,12 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /go/bin/app
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /go/bin/amb-user
 
 FROM scratch
 
-COPY --from=builder /go/bin/github.com /go/bin/github.com
-COPY --from=builder /etc/group /etc/group
-COPY --from=builder /etc/passwd /etc/passwd
-# COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=builder /go/bin/amb-user /go/bin/amb-user
 
 EXPOSE 8081
 
-USER ambitious
-
-ENTRYPOINT ["/go/src/github.com/nigoroku/amb-user"]
+ENTRYPOINT ["/go/bin/amb-user"]

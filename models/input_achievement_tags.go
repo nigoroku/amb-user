@@ -26,7 +26,7 @@ import (
 type InputAchievementTag struct {
 	InputAchievementTagID int       `boil:"input_achievement_tag_id" json:"input_achievement_tag_id" toml:"input_achievement_tag_id" yaml:"input_achievement_tag_id"`
 	InputAchievementID    int       `boil:"input_achievement_id" json:"input_achievement_id" toml:"input_achievement_id" yaml:"input_achievement_id"`
-	CategoryID            null.Int  `boil:"category_id" json:"category_id,omitempty" toml:"category_id" yaml:"category_id,omitempty"`
+	CategoryID            int       `boil:"category_id" json:"category_id" toml:"category_id" yaml:"category_id"`
 	CreatedBy             int       `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
 	CreatedAt             time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	ModifiedBy            null.Int  `boil:"modified_by" json:"modified_by,omitempty" toml:"modified_by" yaml:"modified_by,omitempty"`
@@ -72,6 +72,27 @@ func (w whereHelperint) IN(slice []int) qm.QueryMod {
 	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
 }
 
+type whereHelpertime_Time struct{ field string }
+
+func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
+}
+func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
+}
+func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
 type whereHelpernull_Int struct{ field string }
 
 func (w whereHelpernull_Int) EQ(x null.Int) qm.QueryMod {
@@ -92,27 +113,6 @@ func (w whereHelpernull_Int) GT(x null.Int) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GT, x)
 }
 func (w whereHelpernull_Int) GTE(x null.Int) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-
-type whereHelpertime_Time struct{ field string }
-
-func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.EQ, x)
-}
-func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.NEQ, x)
-}
-func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
@@ -142,7 +142,7 @@ func (w whereHelpernull_Time) GTE(x null.Time) qm.QueryMod {
 var InputAchievementTagWhere = struct {
 	InputAchievementTagID whereHelperint
 	InputAchievementID    whereHelperint
-	CategoryID            whereHelpernull_Int
+	CategoryID            whereHelperint
 	CreatedBy             whereHelperint
 	CreatedAt             whereHelpertime_Time
 	ModifiedBy            whereHelpernull_Int
@@ -150,7 +150,7 @@ var InputAchievementTagWhere = struct {
 }{
 	InputAchievementTagID: whereHelperint{field: "`input_achievement_tags`.`input_achievement_tag_id`"},
 	InputAchievementID:    whereHelperint{field: "`input_achievement_tags`.`input_achievement_id`"},
-	CategoryID:            whereHelpernull_Int{field: "`input_achievement_tags`.`category_id`"},
+	CategoryID:            whereHelperint{field: "`input_achievement_tags`.`category_id`"},
 	CreatedBy:             whereHelperint{field: "`input_achievement_tags`.`created_by`"},
 	CreatedAt:             whereHelpertime_Time{field: "`input_achievement_tags`.`created_at`"},
 	ModifiedBy:            whereHelpernull_Int{field: "`input_achievement_tags`.`modified_by`"},
@@ -608,9 +608,7 @@ func (inputAchievementTagL) LoadCategory(ctx context.Context, e boil.ContextExec
 		if object.R == nil {
 			object.R = &inputAchievementTagR{}
 		}
-		if !queries.IsNil(object.CategoryID) {
-			args = append(args, object.CategoryID)
-		}
+		args = append(args, object.CategoryID)
 
 	} else {
 	Outer:
@@ -620,14 +618,12 @@ func (inputAchievementTagL) LoadCategory(ctx context.Context, e boil.ContextExec
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.CategoryID) {
+				if a == obj.CategoryID {
 					continue Outer
 				}
 			}
 
-			if !queries.IsNil(obj.CategoryID) {
-				args = append(args, obj.CategoryID)
-			}
+			args = append(args, obj.CategoryID)
 
 		}
 	}
@@ -682,7 +678,7 @@ func (inputAchievementTagL) LoadCategory(ctx context.Context, e boil.ContextExec
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if queries.Equal(local.CategoryID, foreign.CategoryID) {
+			if local.CategoryID == foreign.CategoryID {
 				local.R.Category = foreign
 				if foreign.R == nil {
 					foreign.R = &mCategoryR{}
@@ -770,7 +766,7 @@ func (o *InputAchievementTag) SetCategory(ctx context.Context, exec boil.Context
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	queries.Assign(&o.CategoryID, related.CategoryID)
+	o.CategoryID = related.CategoryID
 	if o.R == nil {
 		o.R = &inputAchievementTagR{
 			Category: related,
@@ -787,39 +783,6 @@ func (o *InputAchievementTag) SetCategory(ctx context.Context, exec boil.Context
 		related.R.CategoryInputAchievementTags = append(related.R.CategoryInputAchievementTags, o)
 	}
 
-	return nil
-}
-
-// RemoveCategory relationship.
-// Sets o.R.Category to nil.
-// Removes o from all passed in related items' relationships struct (Optional).
-func (o *InputAchievementTag) RemoveCategory(ctx context.Context, exec boil.ContextExecutor, related *MCategory) error {
-	var err error
-
-	queries.SetScanner(&o.CategoryID, nil)
-	if _, err = o.Update(ctx, exec, boil.Whitelist("category_id")); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	if o.R != nil {
-		o.R.Category = nil
-	}
-	if related == nil || related.R == nil {
-		return nil
-	}
-
-	for i, ri := range related.R.CategoryInputAchievementTags {
-		if queries.Equal(o.CategoryID, ri.CategoryID) {
-			continue
-		}
-
-		ln := len(related.R.CategoryInputAchievementTags)
-		if ln > 1 && i < ln-1 {
-			related.R.CategoryInputAchievementTags[i] = related.R.CategoryInputAchievementTags[ln-1]
-		}
-		related.R.CategoryInputAchievementTags = related.R.CategoryInputAchievementTags[:ln-1]
-		break
-	}
 	return nil
 }
 

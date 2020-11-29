@@ -463,7 +463,7 @@ func (mCategoryL) LoadCategoryInputAchievementTags(ctx context.Context, e boil.C
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.CategoryID) {
+				if a == obj.CategoryID {
 					continue Outer
 				}
 			}
@@ -518,7 +518,7 @@ func (mCategoryL) LoadCategoryInputAchievementTags(ctx context.Context, e boil.C
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if queries.Equal(local.CategoryID, foreign.CategoryID) {
+			if local.CategoryID == foreign.CategoryID {
 				local.R.CategoryInputAchievementTags = append(local.R.CategoryInputAchievementTags, foreign)
 				if foreign.R == nil {
 					foreign.R = &inputAchievementTagR{}
@@ -558,7 +558,7 @@ func (mCategoryL) LoadCategoryOutputAchievementTags(ctx context.Context, e boil.
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.CategoryID) {
+				if a == obj.CategoryID {
 					continue Outer
 				}
 			}
@@ -613,7 +613,7 @@ func (mCategoryL) LoadCategoryOutputAchievementTags(ctx context.Context, e boil.
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if queries.Equal(local.CategoryID, foreign.CategoryID) {
+			if local.CategoryID == foreign.CategoryID {
 				local.R.CategoryOutputAchievementTags = append(local.R.CategoryOutputAchievementTags, foreign)
 				if foreign.R == nil {
 					foreign.R = &outputAchievementTagR{}
@@ -635,7 +635,7 @@ func (o *MCategory) AddCategoryInputAchievementTags(ctx context.Context, exec bo
 	var err error
 	for _, rel := range related {
 		if insert {
-			queries.Assign(&rel.CategoryID, o.CategoryID)
+			rel.CategoryID = o.CategoryID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
@@ -656,7 +656,7 @@ func (o *MCategory) AddCategoryInputAchievementTags(ctx context.Context, exec bo
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			queries.Assign(&rel.CategoryID, o.CategoryID)
+			rel.CategoryID = o.CategoryID
 		}
 	}
 
@@ -680,76 +680,6 @@ func (o *MCategory) AddCategoryInputAchievementTags(ctx context.Context, exec bo
 	return nil
 }
 
-// SetCategoryInputAchievementTags removes all previously related items of the
-// m_category replacing them completely with the passed
-// in related items, optionally inserting them as new records.
-// Sets o.R.Category's CategoryInputAchievementTags accordingly.
-// Replaces o.R.CategoryInputAchievementTags with related.
-// Sets related.R.Category's CategoryInputAchievementTags accordingly.
-func (o *MCategory) SetCategoryInputAchievementTags(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*InputAchievementTag) error {
-	query := "update `input_achievement_tags` set `category_id` = null where `category_id` = ?"
-	values := []interface{}{o.CategoryID}
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, query)
-		fmt.Fprintln(writer, values)
-	}
-	_, err := exec.ExecContext(ctx, query, values...)
-	if err != nil {
-		return errors.Wrap(err, "failed to remove relationships before set")
-	}
-
-	if o.R != nil {
-		for _, rel := range o.R.CategoryInputAchievementTags {
-			queries.SetScanner(&rel.CategoryID, nil)
-			if rel.R == nil {
-				continue
-			}
-
-			rel.R.Category = nil
-		}
-
-		o.R.CategoryInputAchievementTags = nil
-	}
-	return o.AddCategoryInputAchievementTags(ctx, exec, insert, related...)
-}
-
-// RemoveCategoryInputAchievementTags relationships from objects passed in.
-// Removes related items from R.CategoryInputAchievementTags (uses pointer comparison, removal does not keep order)
-// Sets related.R.Category.
-func (o *MCategory) RemoveCategoryInputAchievementTags(ctx context.Context, exec boil.ContextExecutor, related ...*InputAchievementTag) error {
-	var err error
-	for _, rel := range related {
-		queries.SetScanner(&rel.CategoryID, nil)
-		if rel.R != nil {
-			rel.R.Category = nil
-		}
-		if _, err = rel.Update(ctx, exec, boil.Whitelist("category_id")); err != nil {
-			return err
-		}
-	}
-	if o.R == nil {
-		return nil
-	}
-
-	for _, rel := range related {
-		for i, ri := range o.R.CategoryInputAchievementTags {
-			if rel != ri {
-				continue
-			}
-
-			ln := len(o.R.CategoryInputAchievementTags)
-			if ln > 1 && i < ln-1 {
-				o.R.CategoryInputAchievementTags[i] = o.R.CategoryInputAchievementTags[ln-1]
-			}
-			o.R.CategoryInputAchievementTags = o.R.CategoryInputAchievementTags[:ln-1]
-			break
-		}
-	}
-
-	return nil
-}
-
 // AddCategoryOutputAchievementTags adds the given related objects to the existing relationships
 // of the m_category, optionally inserting them as new records.
 // Appends related to o.R.CategoryOutputAchievementTags.
@@ -758,7 +688,7 @@ func (o *MCategory) AddCategoryOutputAchievementTags(ctx context.Context, exec b
 	var err error
 	for _, rel := range related {
 		if insert {
-			queries.Assign(&rel.CategoryID, o.CategoryID)
+			rel.CategoryID = o.CategoryID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
@@ -779,7 +709,7 @@ func (o *MCategory) AddCategoryOutputAchievementTags(ctx context.Context, exec b
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			queries.Assign(&rel.CategoryID, o.CategoryID)
+			rel.CategoryID = o.CategoryID
 		}
 	}
 
@@ -800,76 +730,6 @@ func (o *MCategory) AddCategoryOutputAchievementTags(ctx context.Context, exec b
 			rel.R.Category = o
 		}
 	}
-	return nil
-}
-
-// SetCategoryOutputAchievementTags removes all previously related items of the
-// m_category replacing them completely with the passed
-// in related items, optionally inserting them as new records.
-// Sets o.R.Category's CategoryOutputAchievementTags accordingly.
-// Replaces o.R.CategoryOutputAchievementTags with related.
-// Sets related.R.Category's CategoryOutputAchievementTags accordingly.
-func (o *MCategory) SetCategoryOutputAchievementTags(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*OutputAchievementTag) error {
-	query := "update `output_achievement_tags` set `category_id` = null where `category_id` = ?"
-	values := []interface{}{o.CategoryID}
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, query)
-		fmt.Fprintln(writer, values)
-	}
-	_, err := exec.ExecContext(ctx, query, values...)
-	if err != nil {
-		return errors.Wrap(err, "failed to remove relationships before set")
-	}
-
-	if o.R != nil {
-		for _, rel := range o.R.CategoryOutputAchievementTags {
-			queries.SetScanner(&rel.CategoryID, nil)
-			if rel.R == nil {
-				continue
-			}
-
-			rel.R.Category = nil
-		}
-
-		o.R.CategoryOutputAchievementTags = nil
-	}
-	return o.AddCategoryOutputAchievementTags(ctx, exec, insert, related...)
-}
-
-// RemoveCategoryOutputAchievementTags relationships from objects passed in.
-// Removes related items from R.CategoryOutputAchievementTags (uses pointer comparison, removal does not keep order)
-// Sets related.R.Category.
-func (o *MCategory) RemoveCategoryOutputAchievementTags(ctx context.Context, exec boil.ContextExecutor, related ...*OutputAchievementTag) error {
-	var err error
-	for _, rel := range related {
-		queries.SetScanner(&rel.CategoryID, nil)
-		if rel.R != nil {
-			rel.R.Category = nil
-		}
-		if _, err = rel.Update(ctx, exec, boil.Whitelist("category_id")); err != nil {
-			return err
-		}
-	}
-	if o.R == nil {
-		return nil
-	}
-
-	for _, rel := range related {
-		for i, ri := range o.R.CategoryOutputAchievementTags {
-			if rel != ri {
-				continue
-			}
-
-			ln := len(o.R.CategoryOutputAchievementTags)
-			if ln > 1 && i < ln-1 {
-				o.R.CategoryOutputAchievementTags[i] = o.R.CategoryOutputAchievementTags[ln-1]
-			}
-			o.R.CategoryOutputAchievementTags = o.R.CategoryOutputAchievementTags[:ln-1]
-			break
-		}
-	}
-
 	return nil
 }
 

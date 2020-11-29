@@ -9,6 +9,7 @@ var TableNames = struct {
 	MCategories           string
 	OutputAchievementTags string
 	OutputAchievements    string
+	ShareTokens           string
 	TodoDetails           string
 	Todos                 string
 	Users                 string
@@ -18,6 +19,7 @@ var TableNames = struct {
 	MCategories:           "m_categories",
 	OutputAchievementTags: "output_achievement_tags",
 	OutputAchievements:    "output_achievements",
+	ShareTokens:           "share_tokens",
 	TodoDetails:           "todo_details",
 	Todos:                 "todos",
 	Users:                 "users",

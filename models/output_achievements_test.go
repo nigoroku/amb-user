@@ -519,8 +519,9 @@ func testOutputAchievementToManyOutputAchievementTags(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queries.Assign(&b.OutputAchievementID, a.OutputAchievementID)
-	queries.Assign(&c.OutputAchievementID, a.OutputAchievementID)
+	b.OutputAchievementID = a.OutputAchievementID
+	c.OutputAchievementID = a.OutputAchievementID
+
 	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
 		t.Fatal(err)
 	}
@@ -535,10 +536,10 @@ func testOutputAchievementToManyOutputAchievementTags(t *testing.T) {
 
 	bFound, cFound := false, false
 	for _, v := range check {
-		if queries.Equal(v.OutputAchievementID, b.OutputAchievementID) {
+		if v.OutputAchievementID == b.OutputAchievementID {
 			bFound = true
 		}
-		if queries.Equal(v.OutputAchievementID, c.OutputAchievementID) {
+		if v.OutputAchievementID == c.OutputAchievementID {
 			cFound = true
 		}
 	}
@@ -616,10 +617,10 @@ func testOutputAchievementToManyAddOpOutputAchievementTags(t *testing.T) {
 		first := x[0]
 		second := x[1]
 
-		if !queries.Equal(a.OutputAchievementID, first.OutputAchievementID) {
+		if a.OutputAchievementID != first.OutputAchievementID {
 			t.Error("foreign key was wrong value", a.OutputAchievementID, first.OutputAchievementID)
 		}
-		if !queries.Equal(a.OutputAchievementID, second.OutputAchievementID) {
+		if a.OutputAchievementID != second.OutputAchievementID {
 			t.Error("foreign key was wrong value", a.OutputAchievementID, second.OutputAchievementID)
 		}
 
@@ -646,182 +647,6 @@ func testOutputAchievementToManyAddOpOutputAchievementTags(t *testing.T) {
 		}
 	}
 }
-
-func testOutputAchievementToManySetOpOutputAchievementTags(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a OutputAchievement
-	var b, c, d, e OutputAchievementTag
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, outputAchievementDBTypes, false, strmangle.SetComplement(outputAchievementPrimaryKeyColumns, outputAchievementColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*OutputAchievementTag{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, outputAchievementTagDBTypes, false, strmangle.SetComplement(outputAchievementTagPrimaryKeyColumns, outputAchievementTagColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err = a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = b.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-	if err = c.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.SetOutputAchievementTags(ctx, tx, false, &b, &c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.OutputAchievementTags().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.SetOutputAchievementTags(ctx, tx, true, &d, &e)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.OutputAchievementTags().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.OutputAchievementID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.OutputAchievementID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-	if !queries.Equal(a.OutputAchievementID, d.OutputAchievementID) {
-		t.Error("foreign key was wrong value", a.OutputAchievementID, d.OutputAchievementID)
-	}
-	if !queries.Equal(a.OutputAchievementID, e.OutputAchievementID) {
-		t.Error("foreign key was wrong value", a.OutputAchievementID, e.OutputAchievementID)
-	}
-
-	if b.R.OutputAchievement != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.OutputAchievement != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.OutputAchievement != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-	if e.R.OutputAchievement != &a {
-		t.Error("relationship was not added properly to the foreign struct")
-	}
-
-	if a.R.OutputAchievementTags[0] != &d {
-		t.Error("relationship struct slice not set to correct value")
-	}
-	if a.R.OutputAchievementTags[1] != &e {
-		t.Error("relationship struct slice not set to correct value")
-	}
-}
-
-func testOutputAchievementToManyRemoveOpOutputAchievementTags(t *testing.T) {
-	var err error
-
-	ctx := context.Background()
-	tx := MustTx(boil.BeginTx(ctx, nil))
-	defer func() { _ = tx.Rollback() }()
-
-	var a OutputAchievement
-	var b, c, d, e OutputAchievementTag
-
-	seed := randomize.NewSeed()
-	if err = randomize.Struct(seed, &a, outputAchievementDBTypes, false, strmangle.SetComplement(outputAchievementPrimaryKeyColumns, outputAchievementColumnsWithoutDefault)...); err != nil {
-		t.Fatal(err)
-	}
-	foreigners := []*OutputAchievementTag{&b, &c, &d, &e}
-	for _, x := range foreigners {
-		if err = randomize.Struct(seed, x, outputAchievementTagDBTypes, false, strmangle.SetComplement(outputAchievementTagPrimaryKeyColumns, outputAchievementTagColumnsWithoutDefault)...); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err := a.Insert(ctx, tx, boil.Infer()); err != nil {
-		t.Fatal(err)
-	}
-
-	err = a.AddOutputAchievementTags(ctx, tx, true, foreigners...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err := a.OutputAchievementTags().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 4 {
-		t.Error("count was wrong:", count)
-	}
-
-	err = a.RemoveOutputAchievementTags(ctx, tx, foreigners[:2]...)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	count, err = a.OutputAchievementTags().Count(ctx, tx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if count != 2 {
-		t.Error("count was wrong:", count)
-	}
-
-	if !queries.IsValuerNil(b.OutputAchievementID) {
-		t.Error("want b's foreign key value to be nil")
-	}
-	if !queries.IsValuerNil(c.OutputAchievementID) {
-		t.Error("want c's foreign key value to be nil")
-	}
-
-	if b.R.OutputAchievement != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if c.R.OutputAchievement != nil {
-		t.Error("relationship was not removed properly from the foreign struct")
-	}
-	if d.R.OutputAchievement != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-	if e.R.OutputAchievement != &a {
-		t.Error("relationship to a should have been preserved")
-	}
-
-	if len(a.R.OutputAchievementTags) != 2 {
-		t.Error("should have preserved two relationships")
-	}
-
-	// Removal doesn't do a stable deletion for performance so we have to flip the order
-	if a.R.OutputAchievementTags[1] != &d {
-		t.Error("relationship to d should have been preserved")
-	}
-	if a.R.OutputAchievementTags[0] != &e {
-		t.Error("relationship to e should have been preserved")
-	}
-}
-
 func testOutputAchievementToOneUserUsingUser(t *testing.T) {
 	ctx := context.Background()
 	tx := MustTx(boil.BeginTx(ctx, nil))
@@ -1005,7 +830,7 @@ func testOutputAchievementsSelect(t *testing.T) {
 }
 
 var (
-	outputAchievementDBTypes = map[string]string{`OutputAchievementID`: `int`, `ReferenceURL`: `varchar`, `Summary`: `varchar`, `CreatedBy`: `int`, `CreatedAt`: `timestamp`, `ModifiedBy`: `int`, `ModifiedAt`: `timestamp`, `OutputTime`: `time`, `UserID`: `int`}
+	outputAchievementDBTypes = map[string]string{`OutputAchievementID`: `int`, `ReferenceURL`: `varchar`, `Summary`: `varchar`, `CreatedBy`: `int`, `CreatedAt`: `timestamp`, `ModifiedBy`: `int`, `ModifiedAt`: `timestamp`, `OutputTime`: `int`, `UserID`: `int`}
 	_                        = bytes.MinRead
 )
 

@@ -830,7 +830,7 @@ func testInputAchievementsSelect(t *testing.T) {
 }
 
 var (
-	inputAchievementDBTypes = map[string]string{`InputAchievementID`: `int`, `UserID`: `int`, `ReferenceURL`: `varchar`, `Summary`: `varchar`, `OutputTime`: `time`, `CreatedBy`: `int`, `CreatedAt`: `timestamp`, `ModifiedBy`: `int`, `ModifiedAt`: `timestamp`}
+	inputAchievementDBTypes = map[string]string{`InputAchievementID`: `int`, `UserID`: `int`, `ReferenceURL`: `varchar`, `Summary`: `varchar`, `InputTime`: `int`, `CreatedBy`: `int`, `CreatedAt`: `timestamp`, `ModifiedBy`: `int`, `ModifiedAt`: `timestamp`}
 	_                       = bytes.MinRead
 )
 

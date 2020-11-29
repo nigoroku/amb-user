@@ -28,7 +28,7 @@ type InputAchievement struct {
 	UserID             int         `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
 	ReferenceURL       null.String `boil:"reference_url" json:"reference_url,omitempty" toml:"reference_url" yaml:"reference_url,omitempty"`
 	Summary            null.String `boil:"summary" json:"summary,omitempty" toml:"summary" yaml:"summary,omitempty"`
-	OutputTime         null.String `boil:"output_time" json:"output_time,omitempty" toml:"output_time" yaml:"output_time,omitempty"`
+	InputTime          null.Int    `boil:"input_time" json:"input_time,omitempty" toml:"input_time" yaml:"input_time,omitempty"`
 	CreatedBy          int         `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
 	CreatedAt          time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	ModifiedBy         null.Int    `boil:"modified_by" json:"modified_by,omitempty" toml:"modified_by" yaml:"modified_by,omitempty"`
@@ -43,7 +43,7 @@ var InputAchievementColumns = struct {
 	UserID             string
 	ReferenceURL       string
 	Summary            string
-	OutputTime         string
+	InputTime          string
 	CreatedBy          string
 	CreatedAt          string
 	ModifiedBy         string
@@ -53,7 +53,7 @@ var InputAchievementColumns = struct {
 	UserID:             "user_id",
 	ReferenceURL:       "reference_url",
 	Summary:            "summary",
-	OutputTime:         "output_time",
+	InputTime:          "input_time",
 	CreatedBy:          "created_by",
 	CreatedAt:          "created_at",
 	ModifiedBy:         "modified_by",
@@ -90,7 +90,7 @@ var InputAchievementWhere = struct {
 	UserID             whereHelperint
 	ReferenceURL       whereHelpernull_String
 	Summary            whereHelpernull_String
-	OutputTime         whereHelpernull_String
+	InputTime          whereHelpernull_Int
 	CreatedBy          whereHelperint
 	CreatedAt          whereHelpertime_Time
 	ModifiedBy         whereHelpernull_Int
@@ -100,7 +100,7 @@ var InputAchievementWhere = struct {
 	UserID:             whereHelperint{field: "`input_achievements`.`user_id`"},
 	ReferenceURL:       whereHelpernull_String{field: "`input_achievements`.`reference_url`"},
 	Summary:            whereHelpernull_String{field: "`input_achievements`.`summary`"},
-	OutputTime:         whereHelpernull_String{field: "`input_achievements`.`output_time`"},
+	InputTime:          whereHelpernull_Int{field: "`input_achievements`.`input_time`"},
 	CreatedBy:          whereHelperint{field: "`input_achievements`.`created_by`"},
 	CreatedAt:          whereHelpertime_Time{field: "`input_achievements`.`created_at`"},
 	ModifiedBy:         whereHelpernull_Int{field: "`input_achievements`.`modified_by`"},
@@ -131,8 +131,8 @@ func (*inputAchievementR) NewStruct() *inputAchievementR {
 type inputAchievementL struct{}
 
 var (
-	inputAchievementAllColumns            = []string{"input_achievement_id", "user_id", "reference_url", "summary", "output_time", "created_by", "created_at", "modified_by", "modified_at"}
-	inputAchievementColumnsWithoutDefault = []string{"user_id", "reference_url", "summary", "output_time", "created_by", "created_at", "modified_by", "modified_at"}
+	inputAchievementAllColumns            = []string{"input_achievement_id", "user_id", "reference_url", "summary", "input_time", "created_by", "created_at", "modified_by", "modified_at"}
+	inputAchievementColumnsWithoutDefault = []string{"user_id", "reference_url", "summary", "input_time", "created_by", "created_at", "modified_by", "modified_at"}
 	inputAchievementColumnsWithDefault    = []string{"input_achievement_id"}
 	inputAchievementPrimaryKeyColumns     = []string{"input_achievement_id"}
 )

@@ -25,12 +25,12 @@ import (
 // OutputAchievementTag is an object representing the database table.
 type OutputAchievementTag struct {
 	OutputAchievementTagID int       `boil:"output_achievement_tag_id" json:"output_achievement_tag_id" toml:"output_achievement_tag_id" yaml:"output_achievement_tag_id"`
-	CategoryID             null.Int  `boil:"category_id" json:"category_id,omitempty" toml:"category_id" yaml:"category_id,omitempty"`
+	CategoryID             int       `boil:"category_id" json:"category_id" toml:"category_id" yaml:"category_id"`
 	CreatedBy              int       `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
 	CreatedAt              time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	ModifiedBy             null.Int  `boil:"modified_by" json:"modified_by,omitempty" toml:"modified_by" yaml:"modified_by,omitempty"`
 	ModifiedAt             null.Time `boil:"modified_at" json:"modified_at,omitempty" toml:"modified_at" yaml:"modified_at,omitempty"`
-	OutputAchievementID    null.Int  `boil:"output_achievement_id" json:"output_achievement_id,omitempty" toml:"output_achievement_id" yaml:"output_achievement_id,omitempty"`
+	OutputAchievementID    int       `boil:"output_achievement_id" json:"output_achievement_id" toml:"output_achievement_id" yaml:"output_achievement_id"`
 
 	R *outputAchievementTagR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L outputAchievementTagL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -58,20 +58,20 @@ var OutputAchievementTagColumns = struct {
 
 var OutputAchievementTagWhere = struct {
 	OutputAchievementTagID whereHelperint
-	CategoryID             whereHelpernull_Int
+	CategoryID             whereHelperint
 	CreatedBy              whereHelperint
 	CreatedAt              whereHelpertime_Time
 	ModifiedBy             whereHelpernull_Int
 	ModifiedAt             whereHelpernull_Time
-	OutputAchievementID    whereHelpernull_Int
+	OutputAchievementID    whereHelperint
 }{
 	OutputAchievementTagID: whereHelperint{field: "`output_achievement_tags`.`output_achievement_tag_id`"},
-	CategoryID:             whereHelpernull_Int{field: "`output_achievement_tags`.`category_id`"},
+	CategoryID:             whereHelperint{field: "`output_achievement_tags`.`category_id`"},
 	CreatedBy:              whereHelperint{field: "`output_achievement_tags`.`created_by`"},
 	CreatedAt:              whereHelpertime_Time{field: "`output_achievement_tags`.`created_at`"},
 	ModifiedBy:             whereHelpernull_Int{field: "`output_achievement_tags`.`modified_by`"},
 	ModifiedAt:             whereHelpernull_Time{field: "`output_achievement_tags`.`modified_at`"},
-	OutputAchievementID:    whereHelpernull_Int{field: "`output_achievement_tags`.`output_achievement_id`"},
+	OutputAchievementID:    whereHelperint{field: "`output_achievement_tags`.`output_achievement_id`"},
 }
 
 // OutputAchievementTagRels is where relationship names are stored.
@@ -424,9 +424,7 @@ func (outputAchievementTagL) LoadOutputAchievement(ctx context.Context, e boil.C
 		if object.R == nil {
 			object.R = &outputAchievementTagR{}
 		}
-		if !queries.IsNil(object.OutputAchievementID) {
-			args = append(args, object.OutputAchievementID)
-		}
+		args = append(args, object.OutputAchievementID)
 
 	} else {
 	Outer:
@@ -436,14 +434,12 @@ func (outputAchievementTagL) LoadOutputAchievement(ctx context.Context, e boil.C
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.OutputAchievementID) {
+				if a == obj.OutputAchievementID {
 					continue Outer
 				}
 			}
 
-			if !queries.IsNil(obj.OutputAchievementID) {
-				args = append(args, obj.OutputAchievementID)
-			}
+			args = append(args, obj.OutputAchievementID)
 
 		}
 	}
@@ -498,7 +494,7 @@ func (outputAchievementTagL) LoadOutputAchievement(ctx context.Context, e boil.C
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if queries.Equal(local.OutputAchievementID, foreign.OutputAchievementID) {
+			if local.OutputAchievementID == foreign.OutputAchievementID {
 				local.R.OutputAchievement = foreign
 				if foreign.R == nil {
 					foreign.R = &outputAchievementR{}
@@ -529,9 +525,7 @@ func (outputAchievementTagL) LoadCategory(ctx context.Context, e boil.ContextExe
 		if object.R == nil {
 			object.R = &outputAchievementTagR{}
 		}
-		if !queries.IsNil(object.CategoryID) {
-			args = append(args, object.CategoryID)
-		}
+		args = append(args, object.CategoryID)
 
 	} else {
 	Outer:
@@ -541,14 +535,12 @@ func (outputAchievementTagL) LoadCategory(ctx context.Context, e boil.ContextExe
 			}
 
 			for _, a := range args {
-				if queries.Equal(a, obj.CategoryID) {
+				if a == obj.CategoryID {
 					continue Outer
 				}
 			}
 
-			if !queries.IsNil(obj.CategoryID) {
-				args = append(args, obj.CategoryID)
-			}
+			args = append(args, obj.CategoryID)
 
 		}
 	}
@@ -603,7 +595,7 @@ func (outputAchievementTagL) LoadCategory(ctx context.Context, e boil.ContextExe
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if queries.Equal(local.CategoryID, foreign.CategoryID) {
+			if local.CategoryID == foreign.CategoryID {
 				local.R.Category = foreign
 				if foreign.R == nil {
 					foreign.R = &mCategoryR{}
@@ -644,7 +636,7 @@ func (o *OutputAchievementTag) SetOutputAchievement(ctx context.Context, exec bo
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	queries.Assign(&o.OutputAchievementID, related.OutputAchievementID)
+	o.OutputAchievementID = related.OutputAchievementID
 	if o.R == nil {
 		o.R = &outputAchievementTagR{
 			OutputAchievement: related,
@@ -661,39 +653,6 @@ func (o *OutputAchievementTag) SetOutputAchievement(ctx context.Context, exec bo
 		related.R.OutputAchievementTags = append(related.R.OutputAchievementTags, o)
 	}
 
-	return nil
-}
-
-// RemoveOutputAchievement relationship.
-// Sets o.R.OutputAchievement to nil.
-// Removes o from all passed in related items' relationships struct (Optional).
-func (o *OutputAchievementTag) RemoveOutputAchievement(ctx context.Context, exec boil.ContextExecutor, related *OutputAchievement) error {
-	var err error
-
-	queries.SetScanner(&o.OutputAchievementID, nil)
-	if _, err = o.Update(ctx, exec, boil.Whitelist("output_achievement_id")); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	if o.R != nil {
-		o.R.OutputAchievement = nil
-	}
-	if related == nil || related.R == nil {
-		return nil
-	}
-
-	for i, ri := range related.R.OutputAchievementTags {
-		if queries.Equal(o.OutputAchievementID, ri.OutputAchievementID) {
-			continue
-		}
-
-		ln := len(related.R.OutputAchievementTags)
-		if ln > 1 && i < ln-1 {
-			related.R.OutputAchievementTags[i] = related.R.OutputAchievementTags[ln-1]
-		}
-		related.R.OutputAchievementTags = related.R.OutputAchievementTags[:ln-1]
-		break
-	}
 	return nil
 }
 
@@ -724,7 +683,7 @@ func (o *OutputAchievementTag) SetCategory(ctx context.Context, exec boil.Contex
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	queries.Assign(&o.CategoryID, related.CategoryID)
+	o.CategoryID = related.CategoryID
 	if o.R == nil {
 		o.R = &outputAchievementTagR{
 			Category: related,
@@ -741,39 +700,6 @@ func (o *OutputAchievementTag) SetCategory(ctx context.Context, exec boil.Contex
 		related.R.CategoryOutputAchievementTags = append(related.R.CategoryOutputAchievementTags, o)
 	}
 
-	return nil
-}
-
-// RemoveCategory relationship.
-// Sets o.R.Category to nil.
-// Removes o from all passed in related items' relationships struct (Optional).
-func (o *OutputAchievementTag) RemoveCategory(ctx context.Context, exec boil.ContextExecutor, related *MCategory) error {
-	var err error
-
-	queries.SetScanner(&o.CategoryID, nil)
-	if _, err = o.Update(ctx, exec, boil.Whitelist("category_id")); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	if o.R != nil {
-		o.R.Category = nil
-	}
-	if related == nil || related.R == nil {
-		return nil
-	}
-
-	for i, ri := range related.R.CategoryOutputAchievementTags {
-		if queries.Equal(o.CategoryID, ri.CategoryID) {
-			continue
-		}
-
-		ln := len(related.R.CategoryOutputAchievementTags)
-		if ln > 1 && i < ln-1 {
-			related.R.CategoryOutputAchievementTags[i] = related.R.CategoryOutputAchievementTags[ln-1]
-		}
-		related.R.CategoryOutputAchievementTags = related.R.CategoryOutputAchievementTags[:ln-1]
-		break
-	}
 	return nil
 }
 

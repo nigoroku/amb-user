@@ -155,7 +155,7 @@ func FindOrCreateUser(c *gin.Context) {
 	}
 
 	if err != nil {
-		fmt.Errorf("error: %v", err)
+		fmt.Println(fmt.Errorf("error: %v", err))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "NG",
 			"err":     err,

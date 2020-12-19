@@ -10,10 +10,10 @@ import (
 )
 
 type DbEnv struct {
-	DB_URL      string `default:"localhost"`
+	DB_URL      string `default:"ambitious-db.cjgaxykqszj0.us-east-1.rds.amazonaws.com"`
 	DB_PORT     string `default:"3306"`
 	DB_NAME     string `default:"ambitious"`
-	DB_USER     string `default:"root"`
+	DB_USER     string `default:"moizumi"`
 	DB_PASSWORD string `default:"base0210"`
 }
 

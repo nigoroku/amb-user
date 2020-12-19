@@ -42,7 +42,7 @@ jobs:
         aws-region: us-east-1
 
     - name: Create .env file
-      run: echo "${{ secrets.ENV_PRODUCTION }}" > .env.production
+      run: echo "${{ secrets.ENV_PRODUCTION }}" > .env.development
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -52,7 +52,7 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: amb-user
-        GO_ENV: 'production'
+        GO_ENV: 'development'
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f Dockerfile.prod .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest

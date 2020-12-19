@@ -139,6 +139,7 @@ func FindOrCreateUser(c *gin.Context) {
 		u2, err2 := userService.AddUser(user)
 
 		if err2 != nil {
+			fmt.Println(err2)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "NG",
 				"err":     err,
@@ -155,7 +156,7 @@ func FindOrCreateUser(c *gin.Context) {
 	}
 
 	if err != nil {
-		fmt.Println(fmt.Errorf("error: %v", err))
+		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "NG",
 			"err":     err,

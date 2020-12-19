@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-contrib/cors"
@@ -72,11 +71,5 @@ func main() {
 		})
 	})
 
-	// 起動ポートを環境変数から取得
-	port := os.Getenv("SERVER_PORT")
-	if port == "" {
-		port = "8081"
-	}
-
-	r.Run(":" + port)
+	r.Run(":8081")
 }

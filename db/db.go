@@ -2,29 +2,42 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/kelseyhightower/envconfig"
+	"github.com/joho/godotenv"
 	"github.com/volatiletech/sqlboiler/boil"
 )
 
-type DbEnv struct {
-	DbAddress  string `default:"localhost"`
-	DbPort     string `default:"3306"`
-	DbName     string `default:"ambitious"`
-	DbUser     string `default:"root"`
-	DbPassWord string `default:"base0210"`
-}
-
 func Init() {
-	var dbEnv DbEnv
-	envconfig.Process("", &dbEnv)
+
+	EnvLoad()
+
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DATABASE_NAME")
+	url := os.Getenv("DB_URL")
+	port := os.Getenv("DB_PORT")
 
 	// DB接続
-	db, err := sql.Open("mysql", dbEnv.DbUser+":"+dbEnv.DbPassWord+"@tcp("+dbEnv.DbAddress+":"+dbEnv.DbPort+")/"+dbEnv.DbName+"?parseTime=true")
+	db, err := sql.Open("mysql", user+":"+password+"@tcp("+url+":"+port+")/"+dbName+"?parseTime=true")
 	if err != nil {
 		log.Fatalf("Cannot connect database: %v", err)
 	}
 	boil.SetDB(db)
+}
+
+func EnvLoad() {
+
+	if os.Getenv("GO_ENV") == "" {
+		os.Setenv("GO_ENV", "development")
+	}
+
+	err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("GO_ENV")))
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 }

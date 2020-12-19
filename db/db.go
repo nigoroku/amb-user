@@ -35,9 +35,9 @@ func EnvLoad() {
 		os.Setenv("GO_ENV", "development")
 	}
 
-	err := godotenv.Load(fmt.Sprintf(".env.%s", os.Getenv("GO_ENV")))
+	err := godotenv.Load(fmt.Sprintf("../.env.%s", os.Getenv("GO_ENV")))
 
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("Error loading .env file" + os.Getenv("GO_ENV"))
 	}
 }

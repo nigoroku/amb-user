@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"log"
+	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kelseyhightower/envconfig"

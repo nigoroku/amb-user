@@ -2,8 +2,8 @@ package db
 
 import (
 	"database/sql"
-	"log"
 	"fmt"
+	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kelseyhightower/envconfig"
@@ -11,11 +11,11 @@ import (
 )
 
 type DbEnv struct {
-	DB_URL      string `default:"localhost"`
-	DB_PORT     string `default:"3306"`
-	DB_NAME     string `default:"ambitious"`
-	DB_USER     string `default:"root"`
-	DB_PASSWORD string `default:"base0210"`
+	DbUrl      string `envconfig:"DB_URL"`
+	DbPort     string `envconfig:"DB_PORT"`
+	DbName     string `envconfig:"DB_NAME"`
+	DbUser     string `envconfig:"DB_USER"`
+	DbPassword string `envconfig:"DB_PASSWORD"`
 }
 
 func Init() {
@@ -23,8 +23,8 @@ func Init() {
 	envconfig.Process("", &dbEnv)
 
 	// DB接続
-	fmt.Println(dbEnv.DB_URL)
-	db, err := sql.Open("mysql", dbEnv.DB_USER+":"+dbEnv.DB_PASSWORD+"@tcp("+dbEnv.DB_URL+":"+dbEnv.DB_PORT+")/"+dbEnv.DB_NAME+"?parseTime=true")
+	fmt.Println(dbEnv.DbUrl)
+	db, err := sql.Open("mysql", dbEnv.DbUser+":"+dbEnv.DbPassword+"@tcp("+dbEnv.DbUrl+":"+dbEnv.DbPort+")/"+dbEnv.DbName+"?parseTime=true")
 	if err != nil {
 		log.Fatalf("Cannot connect database: %v", err)
 	}

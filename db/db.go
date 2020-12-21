@@ -22,6 +22,7 @@ func Init() {
 	envconfig.Process("", &dbEnv)
 
 	// DB接続
+	fmt.Println(dbEnv.DB_URL)
 	db, err := sql.Open("mysql", dbEnv.DB_USER+":"+dbEnv.DB_PASSWORD+"@tcp("+dbEnv.DB_URL+":"+dbEnv.DB_PORT+")/"+dbEnv.DB_NAME+"?parseTime=true")
 	if err != nil {
 		log.Fatalf("Cannot connect database: %v", err)

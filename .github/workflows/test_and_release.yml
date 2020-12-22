@@ -55,5 +55,5 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          docker-compose up -d --remove-orphans
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f Dockerfile.prod .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest

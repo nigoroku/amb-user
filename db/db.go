@@ -11,11 +11,11 @@ import (
 )
 
 type DbEnv struct {
-	DbUrl      string `envconfig:"DB_URL"`
-	DbPort     string `envconfig:"DB_PORT"`
-	DbName     string `envconfig:"DB_NAME"`
-	DbUser     string `envconfig:"DB_USER"`
-	DbPassword string `envconfig:"DB_PASSWORD"`
+	DbURL      string `envconfig:"DB_URL" default:"ambitious-db.cjgaxykqszj0.us-east-1.rds.amazonaws.com"`
+	DbPort     string `envconfig:"DB_PORT" default:"3306"`
+	DbName     string `envconfig:"DB_NAME" default:"ambitious"`
+	DbUser     string `envconfig:"DB_USER" default:"moizumi"`
+	DbPassword string `envconfig:"DB_PASSWORD" default:"base0210"`
 }
 
 func Init() {
@@ -23,8 +23,8 @@ func Init() {
 	envconfig.Process("", &dbEnv)
 
 	// DB接続
-	fmt.Println(dbEnv.DbUrl)
-	db, err := sql.Open("mysql", dbEnv.DbUser+":"+dbEnv.DbPassword+"@tcp("+dbEnv.DbUrl+":"+dbEnv.DbPort+")/"+dbEnv.DbName+"?parseTime=true")
+	fmt.Println(dbEnv.DbURL)
+	db, err := sql.Open("mysql", dbEnv.DbUser+":"+dbEnv.DbPassword+"@tcp("+dbEnv.DbURL+":"+dbEnv.DbPort+")/"+dbEnv.DbName+"?parseTime=true")
 	if err != nil {
 		log.Fatalf("Cannot connect database: %v", err)
 	}

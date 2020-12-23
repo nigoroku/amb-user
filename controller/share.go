@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"strconv"
 
 	"local.packages/service"
@@ -39,6 +40,7 @@ func RegisteShareToken(c *gin.Context) {
 	err := shareService.RegisteShareToken(shareForm.UserID, shareForm.Token)
 
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "ng",
 			"err":     err,

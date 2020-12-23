@@ -56,7 +56,7 @@ func main() {
 			v1.POST("/login", authMiddleware.LoginHandler)
 
 			v1.GET("/share", controller.CreateShareToken)
-			v1.POST("/share/regite", controller.RegisteShareToken)
+			v1.POST("/share/registe", controller.RegisteShareToken)
 			v1.GET("/public", controller.FindPublicUser)
 
 			auth := v1.Group("/auth")
